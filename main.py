@@ -3,86 +3,86 @@ import math
 
 
 def main():
-    board = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+    game_board = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
 
     pygame.init()
 
-    window = pygame.display.set_mode((len(board[0]) * 60, len(board) * 60 + 60))
+    game_window = pygame.display.set_mode((len(game_board[0]) * 60, len(game_board) * 60 + 60))
     pygame.display.set_caption("Connect 4")
 
-    clock = pygame.time.Clock()
-    font = pygame.font.Font("freesansbold.ttf", 30)
+    game_clock = pygame.time.Clock()
+    game_font = pygame.font.Font("freesansbold.ttf", 30)
 
-    running = True
-    mouseX = 210
-    turn = 1
-    mouseCol = 3
-    winner = None
+    is_running = True
+    mouse_x = 210
+    turn_count = 1
+    mouse_col = 3
+    game_winner = None
 
-    while running:
-        window.fill((0, 0, 0))
+    while is_running:
+        game_window.fill((0, 0, 0))
 
-        if turn % 2 == 0 and winner is None:
-            mouseCol = ai_move(board, 2, window)
-            if available_col(board, mouseCol):
-                drop(board, mouseCol, 2)
-                turn += 1
-                winner = checkwin(board)
+        if turn_count % 2 == 0 and game_winner is None:
+            mouse_col = ai_move(game_board, 2, game_window)
+            if is_available_col(game_board, mouse_col):
+                drop_piece(game_board, mouse_col, 2)
+                turn_count += 1
+                game_winner = check_winner(game_board)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                is_running = False
             if event.type == pygame.MOUSEMOTION:
-                mouseCol = event.pos[0] // 60
-                mouseX = event.pos[0]
-                if mouseX < 30:
-                    mouseX = 30
-                elif mouseX > len(board[0]) * 60 - 30:
-                    mouseX = len(board[0]) * 60 - 30
+                mouse_col = event.pos[0] // 60
+                mouse_x = event.pos[0]
+                if mouse_x < 30:
+                    mouse_x = 30
+                elif mouse_x > len(game_board[0]) * 60 - 30:
+                    mouse_x = len(game_board[0]) * 60 - 30
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouseCol = event.pos[0] // 60
-                if available_col(board, mouseCol) and winner is None:
-                    if turn % 2 == 1:
-                        drop(board, mouseCol, 1)
-                        turn += 1
-                        winner = checkwin(board)
+                mouse_col = event.pos[0] // 60
+                if is_available_col(game_board, mouse_col) and game_winner is None:
+                    if turn_count % 2 == 1:
+                        drop_piece(game_board, mouse_col, 1)
+                        turn_count += 1
+                        game_winner = check_winner(game_board)
 
-        draw(flip_board(board), True, window, mouseCol, winner)
+        draw_board(flip_board(game_board), True, game_window, mouse_col, game_winner)
 
-        if winner is None:
-            draw_pointer(mouseX, (255, 0, 0), window)
+        if game_winner is None:
+            draw_pointer(mouse_x, (255, 0, 0), game_window)
 
-        if winner is not None:
-            if winner == 1:
-                win_text = font.render(f"YOU WINS", True, (255, 0, 0))
-            elif winner == 2:
-                win_text = font.render(f"COMPUTER WINS", True, (255, 255, 0))
-            elif winner == "tie":
-                win_text = font.render(f"TIE", True, (255, 255, 255))
+        if game_winner is not None:
+            if game_winner == 1:
+                win_text = game_font.render(f"YOU WINS", True, (255, 0, 0))
+            elif game_winner == 2:
+                win_text = game_font.render(f"COMPUTER WINS", True, (255, 255, 0))
+            elif game_winner == "tie":
+                win_text = game_font.render(f"TIE", True, (255, 255, 255))
             win_text_rect = win_text.get_rect(center=(210, 30))
-            window.blit(win_text, win_text_rect)
+            game_window.blit(win_text, win_text_rect)
 
-        clock.tick(24)
+        game_clock.tick(24)
         pygame.display.update()
 
 
 def flip_board(board):
-    new_board = []
+    flipped_board = []
     for i in range(len(board) - 1, -1, -1):
-        new_board.append(board[i])
-    return new_board
+        flipped_board.append(board[i])
+    return flipped_board
 
 
 def draw_pointer(x, color, window):
     pygame.draw.circle(window, color, (x, 30), 28)
 
 
-def draw(board, current_col, window, mouseCol, winner):
+def draw_board(board, current_col, window, mouse_col, winner):
     pygame.draw.rect(window, (0, 0, 255),
                      (0, 60, len(board[0]) * 60, len(board) * 60))
     if current_col and winner is None:
         pygame.draw.rect(window, (70, 70, 255),
-                         (mouseCol * 60, 60, 60, len(board) * 60))
+                         (mouse_col * 60, 60, 60, len(board) * 60))
     for row in range(len(board)):
         for col in range(len(board[0])):
             if board[row][col] == 0:
@@ -96,26 +96,26 @@ def draw(board, current_col, window, mouseCol, winner):
                                    (col * 60 + 30, row * 60 + 90), 28)
 
 
-def available_col(board, col):
+def is_available_col(board, col):
     return board[5][col] == 0
 
 
-def valid_locations(board):
-    valid = []
+def get_valid_locations(board):
+    valid_locations = []
     for col in range(len(board[0])):
-        if available_col(board, col):
-            valid.append(col)
-    return valid
+        if is_available_col(board, col):
+            valid_locations.append(col)
+    return valid_locations
 
 
-def drop(board, col, piece):
+def drop_piece(board, col, piece):
     for row in range(len(board)):
         if board[row][col] == 0:
             board[row][col] = piece
             break
 
 
-def checkwin(board):
+def check_winner(board):
     # Horizontal
     for row in range(len(board)):
         for col in range(len(board[row]) - 3):
@@ -163,34 +163,34 @@ def checkwin(board):
     return None
 
 
-def line_state(line, piece, op):
+def evaluate_line_state(line, piece, opponent):
     score = 0
     if line.count(piece) == 3 and line.count(0) == 1:
         score += 500
     if line.count(piece) == 2 and line.count(0) == 2:
         score += 50
 
-    if line.count(op) == 3 and line.count(0) == 1:
+    if line.count(opponent) == 3 and line.count(0) == 1:
         score -= 300
-    if line.count(op) == 2 and line.count(0) == 2:
+    if line.count(opponent) == 2 and line.count(0) == 2:
         score -= 20
 
     return score
 
 
-def checkscore(board, piece, op):
-    score = 0
+def evaluate_board_score(board, piece, opponent):
+    total_score = 0
 
     # Horizontal
     for row in range(len(board)):
         for col in range(len(board[row]) - 3):
             row_list = board[row][col:col + 4]
-            score += line_state(row_list, piece, op)
+            total_score += evaluate_line_state(row_list, piece, opponent)
 
     # Vertical
     for row in range(len(board) - 3):
         for col in range(len(board[row])):
-            score += line_state(row_list, piece, op)
+            total_score += evaluate_line_state(row_list, piece, opponent)
 
     # Back slash
     for row in range(len(board) - 3):
@@ -199,7 +199,7 @@ def checkscore(board, piece, op):
                 board[row][col], board[row + 1][col + 1],
                 board[row + 2][col + 2], board[row + 3][col + 3]
             ]
-            score += line_state(back_slash_list, piece, op)
+            total_score += evaluate_line_state(back_slash_list, piece, opponent)
 
     # Forward slash
     for row in range(3, len(board)):
@@ -208,20 +208,20 @@ def checkscore(board, piece, op):
                 board[row][col], board[row - 1][col + 1],
                 board[row - 2][col + 2], board[row - 3][col + 3]
             ]
-            score += line_state(forward_slash_list, piece, op)
+            total_score += evaluate_line_state(forward_slash_list, piece, opponent)
 
-    return score
+    return total_score
 
 
 def ai_move(board, piece, window):
     best_score = -math.inf
     best_col = len(board[0]) // 2
-    valid = valid_locations(board)
+    valid_locations = get_valid_locations(board)
     pygame.draw.rect(window, (0, 0, 0), (0, 0, 420, 60))
-    draw(flip_board(board), False, window, None, None)
+    draw_board(flip_board(board), False, window, None, None)
     pygame.display.update()
-    for col in valid:
-        drop(board, col, piece)
+    for col in valid_locations:
+        drop_piece(board, col, piece)
         score = minimax(board, 3, False)
         for row in range(len(board) - 1, -1, -1):
             if board[row][col] != 0:
@@ -236,23 +236,23 @@ def ai_move(board, piece, window):
     return best_col
 
 
-def minimax(board, depth, maximizing):
-    score = checkwin(board)
-    if score == 1:
+def minimax(board, depth, is_maximizing):
+    winner = check_winner(board)
+    if winner == 1:
         return -10000000 - depth
-    elif score == 2:
+    elif winner == 2:
         return 10000000000 + depth
-    elif score == "tie":
+    elif winner == "tie":
         return 0
 
     if depth <= 0:
-        return checkscore(board, 2, 1) + depth
+        return evaluate_board_score(board, 2, 1) + depth
 
-    if maximizing:
+    if is_maximizing:
         best_score = -math.inf
-        valid = valid_locations(board)
-        for col in valid:
-            drop(board, col, 2)
+        valid_locations = get_valid_locations(board)
+        for col in valid_locations:
+            drop_piece(board, col, 2)
             score = minimax(board, depth - 1, False)
             for row in range(len(board) - 1, -1, -1):
                 if board[row][col] != 0:
@@ -265,9 +265,9 @@ def minimax(board, depth, maximizing):
 
     else:
         best_score = math.inf
-        valid = valid_locations(board)
-        for col in valid:
-            drop(board, col, 1)
+        valid_locations = get_valid_locations(board)
+        for col in valid_locations:
+            drop_piece(board, col, 1)
             score = minimax(board, depth - 1, True)
             for row in range(len(board) - 1, -1, -1):
                 if board[row][col] != 0:
